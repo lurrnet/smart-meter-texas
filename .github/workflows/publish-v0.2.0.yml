@@ -1,0 +1,41 @@
+name: Publish v0.2.0 GitHub Release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - docs/releases/v0.2.0.md
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout tagged source and release notes
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Confirm immutable v0.2.0 tag target
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin refs/tags/v0.2.0:refs/tags/v0.2.0
+          test "$(git rev-parse 'v0.2.0^{commit}')" = "6ca35498fbc95c23a4c7e23a2a7f2cc22eb1b06f"
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if gh release view v0.2.0 --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
+            echo "v0.2.0 release already exists; no changes made"
+          else
+            gh release create v0.2.0 \
+              --repo "${GITHUB_REPOSITORY}" \
+              --title "Smart Meter Texas v0.2.0" \
+              --notes-file docs/releases/v0.2.0.md \
+              --latest \
+              --verify-tag
+          fi

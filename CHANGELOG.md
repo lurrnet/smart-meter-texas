@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.2.0] - Unreleased
+## [0.2.0] - 2026-10-27
 
 ### Features
 - Smart Meter Texas 15-minute data retrieval and scheduled incremental sync
@@ -25,4 +25,4 @@
 - Replace outdated MVP1 README with installation, deployment and privacy guidance
 - Add SECURITY.md, GitHub CI and release-readiness checklist
 
-This release remains a candidate until the final secret scan, user-run Docker deployment verification, terms review, and repository visibility change have been completed.
+First public source snapshot, tagged as v0.2.0. The tagged source passed CI Python tests, frontend build, Docker smoke test and full-history Gitleaks scan. Production-specific access controls and any authorization required by Smart Meter Texas remain the responsibility of each operator. Publishing source code does not grant permission for automated retrieval.

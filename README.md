@@ -2,7 +2,7 @@
 
 Self-hosted electricity usage monitoring and analytics, powered by Smart Meter Texas consumption data.
 
-**Release candidate:** v0.2.0 (not yet published)
+**Version:** [v0.2.0](https://github.com/lurrnet/smart-meter-texas/releases/tag/v0.2.0) (first public source release)
 
 > **Unofficial integration:** This community project is not affiliated with or endorsed by Smart Meter Texas. It authenticates against website endpoints that are not the formally provisioned SMT API/FTPS integration; those endpoints may change. The [SMT Website Terms and Conditions](https://www.smartmetertexas.com/?view=security) restrict automated extraction except through prescribed functionality or with appropriate authorization. The [Residential User Guide, Section 9](https://www.smartmetertexas.com/commonapi/gethelpguide/help-guides/Smart_Meter_Texas_Residential_User_Guide.pdf) describes an official API/FTPS integration process through SMT Support. **Publishing this source code does not authorize automated access.** Review the provider terms and obtain any required permission before operating it.
 
@@ -117,7 +117,7 @@ The frontend uses a committed npm lockfile and pinned direct dependency versions
 
 ## Release and operational checks
 
-Before switching the repository to Public, complete the [release readiness checklist](docs/RELEASE_CHECKLIST.md). Always back up the local SQLite database, configuration, and private logs before upgrading. The release is not considered deployment-verified until the full Docker Compose application has passed a clean-host smoke test with the intended Cloudflare Access configuration. Never upload real meter readings or `.env` values into public issue reports.
+For release history, verification evidence, and outstanding operational/provider-access checks, see the [release readiness checklist](docs/RELEASE_CHECKLIST.md). Always back up the local SQLite database, configuration, and private logs before upgrading. The tagged snapshot passed automated Docker CI smoke tests. A full production deployment and Cloudflare Access configuration must be verified separately. Never upload real meter readings or `.env` values into public issue reports.
 
 ## License
 
