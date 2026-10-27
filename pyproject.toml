@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "smart-meter-texas-webapp"
+version = "0.2.0"
+description = "Smart Meter Texas retriever, FastAPI backend, and React dashboard"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi>=0.115",
+  "uvicorn[standard]>=0.30",
+  "pandas>=2.2",
+  "requests>=2.32"
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.3", "httpx>=0.27"]
+
+[project.scripts]
+smt-daily = "smart_meter_texas.daily:main"
+smt-interval = "smart_meter_texas.intervals:main"
+smt-scheduler = "smart_meter_texas.scheduler:main"
+smt-api = "smart_meter_web.api:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

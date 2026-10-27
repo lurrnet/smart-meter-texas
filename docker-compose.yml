@@ -1,0 +1,25 @@
+services:
+  web:
+    build: .
+    image: smart-meter-texas:0.2.0
+    env_file: [.env]
+    environment:
+      SMT_PROJECT_ROOT: /app
+    ports:
+      - "${SMT_BIND_ADDRESS:-127.0.0.1}:8090:8090"
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    restart: unless-stopped
+
+  scheduler:
+    image: smart-meter-texas:0.2.0
+    build: .
+    env_file: [.env]
+    environment:
+      SMT_PROJECT_ROOT: /app
+    command: ["smt-scheduler"]
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    restart: unless-stopped

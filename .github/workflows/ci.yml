@@ -1,0 +1,72 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  python-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[dev]'
+      - run: python -m pytest -q
+
+  frontend-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - working-directory: frontend
+        run: npm ci --no-audit --no-fund
+      - working-directory: frontend
+        run: npm run build
+
+  docker-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build application image
+        run: docker build --tag smart-meter-texas:smoke .
+      - name: Exercise health and authentication boundary
+        run: |
+          SMOKE_PASSWORD="$(openssl rand -hex 24)"
+          docker run --rm -d --name smt-smoke -p 127.0.0.1:18090:8090 \
+            -e SMT_WEB_AUTH_ENABLED=true \
+            -e SMT_WEB_USERNAME=testuser \
+            -e SMT_WEB_PASSWORD="$SMOKE_PASSWORD" \
+            smart-meter-texas:smoke
+          trap 'docker rm -f smt-smoke >/dev/null 2>&1 || true' EXIT
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:18090/api/health >/dev/null; then break; fi
+            sleep 2
+          done
+          curl -fsS http://127.0.0.1:18090/api/health | grep -q '"ok":true'
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:18090/api/summary)" = 401
+          test "$(curl -s -o /dev/null -w '%{http_code}' -u "testuser:$SMOKE_PASSWORD" http://127.0.0.1:18090/api/summary)" = 200
+
+  history-secrets-scan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Download and verify Gitleaks v8.30.1
+        run: |
+          curl --fail --location --silent --show-error \
+            https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz \
+            --output /tmp/gitleaks.tar.gz
+          echo "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  /tmp/gitleaks.tar.gz" | sha256sum --check
+          tar -xzf /tmp/gitleaks.tar.gz -C /tmp gitleaks
+      - name: Scan entire Git history (redacted)
+        run: /tmp/gitleaks git --log-opts="--all" --redact --no-banner --exit-code 1 .

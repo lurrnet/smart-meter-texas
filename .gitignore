@@ -1,0 +1,27 @@
+.env
+secrets/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+data/
+logs/
+*.sqlite
+*.db
+*.csv
+.DS_Store
+
+# Additional local configuration and generated artifacts
+.env.*
+!.env.example
+*.sqlite3
+*.sqlite-*
+*.db-*
+*.log
+*.bak
+*.pem
+*.key
+frontend/node_modules/
+frontend/dist/
