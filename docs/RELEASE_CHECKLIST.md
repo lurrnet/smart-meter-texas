@@ -1,23 +1,32 @@
-# v0.2.0 public release checklist
+# v0.2.0 public release verification
 
-- [ ] Verify local/remote HTTPS deployment and successful login (Cloudflare Access if app Basic auth is disabled)
-- [ ] If `SMT_WEB_AUTH_ENABLED=false`: verify every route, including `/api/*`, is covered by Access and no direct origin IP/port or alternate hostname bypasses Access
-- [ ] Test lack of credentials denies access (fail-closed)
-- [ ] Confirm no route can read outside frontend_dist
-- [ ] Run Python tests, frontend build and Docker smoke test
-- [ ] Run Gitleaks against **all Git history** and inspect GitHub Actions artifacts
-- [ ] Inspect full-history Gitleaks CI result, then manually review for real meter identifiers, Discord URLs, API secrets and private information
-- [x] Pin frontend dependencies, commit package-lock.json, and use npm ci in CI and Docker
-- [ ] Confirm AGPL-3.0 is the intended open-source license
-- [ ] **Provider access review:** review [SMT Terms](https://www.smartmetertexas.com/?view=security) and [Residential User Guide §9](https://www.smartmetertexas.com/commonapi/gethelpguide/help-guides/Smart_Meter_Texas_Residential_User_Guide.pdf); obtain any necessary authorization before recommending unofficial-website-endpoint automation
-- [ ] **History decision:** Git history and merged/closed PRs still contain old sample locations; decide whether a clean public snapshot is preferable to exposing all private development history
-- [ ] Delete unnecessary merged feature/release branches; review PR history, including the closed superseded Docker CI fixture PR
-- [ ] Confirm the public documentation doesn't contain private addresses or screenshots
-- [ ] Review README configuration, raw payload retention, and restore/backup instructions
-- [ ] Confirm GitHub repository description, license choice, issues and private vulnerability reporting are configured as intended
-- [ ] Remove stale release branches after the public release (preserve needed history)
-- [ ] Enable GitHub private vulnerability reporting and branch protections where available
-- [ ] Update version and changelog, create `v0.2.0` tag and GitHub Release
-- [ ] Only then switch repository visibility to Public
+## Completed / confirmed on GitHub
 
-Visibility and GitHub Release require a separate administrative action; neither is performed by the code changes.
+- [x] Public repository created from an isolated single-commit source snapshot (2026-10-27)
+- [x] AGPL-3.0 license file included in the public source
+- [x] Repository description and SECURITY.md present
+- [x] README includes deployment, privacy, raw payload retention and Cloudflare Access warnings
+- [x] Frontend dependencies pinned with package-lock.json and npm ci
+- [x] Python tests passed in CI (run 40443537318)
+- [x] Frontend build passed in CI (run 40443537318)
+- [x] Docker image health and Basic-authentication smoke test passed in CI (run 40443537318)
+- [x] Full-history Gitleaks scan passed in CI (run 40443537318, clean public snapshot only)
+- [x] CodeQL setup workflow completed successfully (run 40444880000)
+- [x] `main` branch ruleset active, requiring PR, checks, signed commits and linear history
+- [x] Annotated `v0.2.0` tag exists and references source commit `6ca35498fbc95c23a4c7e23a2a7f2cc22eb1b06f`
+
+## Release publication
+
+- [x] Release notes prepared in [v0.2.0.md](releases/v0.2.0.md)
+- [ ] GitHub Release published (check [Releases](https://github.com/lurrnet/smart-meter-texas/releases/tag/v0.2.0) and the release workflow after merge)
+
+## Operator and policy checks not verified by CI
+
+- [ ] Validate actual HTTPS and Cloudflare Access login at the deployed hostname
+- [ ] If app Basic auth is disabled, verify Access covers all paths including `/api/*`, and there are no alternate routes to the origin
+- [ ] Confirm a production database backup and restore procedure
+- [ ] Manually review repository artifacts, public screenshots and disclosures for confidential information
+- [ ] Confirm GitHub private vulnerability reporting is enabled
+- [ ] Review current SMT terms and Residential User Guide §9; obtain any authorization necessary for automated website-endpoint retrieval
+
+The software is **unofficial** and the GitHub release is a source-code publication, not authorization by Smart Meter Texas. Automated CI checks do not substitute for deployment-specific verification or review of provider terms.
