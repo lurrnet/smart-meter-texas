@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0] - Unreleased (version-aligned source; not tagged or published)
+
+- Adopt the approved modern energy PWA icons (192px and 512px).
+- Align Docker image tags, Python package version, and frontend package/lockfile to `0.3.0`.
+- Preserve the simple `docker compose up -d --build` workflow without `SMT_IMAGE_TAG`.
+- Mobile PWA and Cloudflare Access acceptance testing is still required before publishing a stable release.
+
 ## [0.3.0-rc.1] - Prerelease (pending publication)
 
 ### PWA
@@ -10,7 +17,7 @@
 
 ### Operations
 - Introduce reusable manual release workflow and contributor documentation.
-- Allow an explicit `SMT_IMAGE_TAG` for reproducible staging builds while retaining the existing default for current deployments.
+- Prepare versioned Docker images for staging builds; subsequent source alignment pins both services to `0.3.0`.
 - Add PWA staging checklist; mobile and Cloudflare Access acceptance testing remains pending.
 
 
