@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.3.0-rc.1] - Prerelease (pending publication)
+
+### PWA
+- Add installable Android/iOS Home Screen metadata, icons and standalone display configuration.
+- Add network-dependent Service Worker with conservative cache boundaries and update notice.
+- Serve PWA assets using explicit FastAPI routes; remove request-controlled filesystem path handling.
+- Add install metadata, backend authentication and static-file route regression checks.
+
+### Operations
+- Introduce reusable manual release workflow and contributor documentation.
+- Allow an explicit `SMT_IMAGE_TAG` for reproducible staging builds while retaining the existing default for current deployments.
+- Add PWA staging checklist; mobile and Cloudflare Access acceptance testing remains pending.
+
+
 ## [0.2.0] - 2026-10-27
 
 ### Features
