@@ -37,3 +37,5 @@ def test_pwa_static_routes_are_authenticated_and_correct(monkeypatch, tmp_path: 
     assert client.get("/pwa-register.js", headers=headers).status_code == 200
     assert client.get("/icons/icon-192.png", headers=headers).content == b"fake-icon"
     assert client.get("/manifest.webmanifest/unknown", headers=headers).text == "<html>DASHBOARD</html>"
+    for unlisted in ("/icons/other.png", "/manifest.json", "/private.js"):
+        assert client.get(unlisted, headers=headers).status_code == 404
