@@ -1,0 +1,82 @@
+name: Publish GitHub Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing annotated release tag (vX.Y.Z or vX.Y.Z-rc.N)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - name: Checkout trusted main workflow and release notes
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Verify tag, ancestry, release notes and passing CI
+        id: verify
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! "$RELEASE_TAG" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-rc\.[1-9][0-9]*)?$ ]]; then
+            echo "::error::Expected vX.Y.Z or vX.Y.Z-rc.N"
+            exit 1
+          fi
+          git fetch --tags origin
+          git show-ref --verify --quiet "refs/tags/$RELEASE_TAG"
+          test "$(git cat-file -t "refs/tags/$RELEASE_TAG")" = tag
+          source_sha="$(git rev-parse "$RELEASE_TAG^{commit}")"
+          git merge-base --is-ancestor "$source_sha" HEAD
+          notes="docs/releases/$RELEASE_TAG.md"
+          test -f "$notes"
+          # Only publish commits that completed the full CI workflow on main.
+          successful_runs="$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs?head_sha=$source_sha&branch=main&status=success&per_page=100" --jq '.workflow_runs | length')"
+          if [ "$successful_runs" -lt 1 ]; then
+            echo "::error::No successful main-branch CI run for tag commit $source_sha"
+            exit 1
+          fi
+          echo "sha=$source_sha" >> "$GITHUB_OUTPUT"
+          if [[ "$RELEASE_TAG" == *-rc.* ]]; then
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish release (idempotent)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag }}
+          IS_PRERELEASE: ${{ steps.verify.outputs.prerelease }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Release $RELEASE_TAG already exists; leaving it unchanged."
+            exit 0
+          fi
+          flags=(--verify-tag --title "Smart Meter Texas $RELEASE_TAG" --notes-file "docs/releases/$RELEASE_TAG.md")
+          if [ "$IS_PRERELEASE" = true ]; then
+            flags+=(--prerelease)
+          else
+            flags+=(--latest)
+          fi
+          gh release create "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" "${flags[@]}"
