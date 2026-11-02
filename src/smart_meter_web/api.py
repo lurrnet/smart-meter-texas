@@ -537,7 +537,9 @@ def single_page_app(path: str):
     # Serve only known compiled static file extensions from the frontend root.
     root = FRONTEND.resolve()
     candidate = (root / path).resolve()
-    if path and candidate.is_file() and candidate.is_relative_to(root) and candidate.suffix in {".js", ".css", ".svg", ".png", ".ico", ".jpg", ".jpeg", ".webp", ".woff", ".woff2", ".txt"}:
+    if path and candidate.is_file() and candidate.is_relative_to(root) and candidate.suffix in {".js", ".css", ".svg", ".png", ".ico", ".jpg", ".jpeg", ".webp", ".woff", ".woff2", ".txt", ".webmanifest"}:
+        if candidate.suffix == ".webmanifest":
+            return FileResponse(candidate, media_type="application/manifest+json")
         return FileResponse(candidate)
     if path.startswith("api/") or path.startswith(".") or path.startswith("assets/"):
         raise HTTPException(status_code=404, detail="Not found")
