@@ -211,7 +211,7 @@ body { font-size: 14px; }
 main { padding-top: 22px; }
 .app-header { padding: 0 0 20px; margin-bottom: 14px; border-bottom: 1px solid var(--border); }
 .app-header h1 { display: flex; align-items: center; gap: 10px; font-size: 23px; font-weight: 800; letter-spacing: -.7px; }
-.brand-mark { display: inline-grid; place-items: center; background: #e0f6ed; color: #078b67; border-radius: 11px; width: 40px; height: 40px; font-size: 35px; line-height: 1; }
+.brand-mark { display: inline-block; width: 40px; height: 40px; border-radius: 11px; object-fit: contain; vertical-align: middle; }
 .app-header p { padding-left: 50px; font-size: 12px; margin-top: -3px; }
 .actions button { border: 1px solid var(--border); box-shadow: 0 2px 5px var(--shadow); }
 button { transition: background-color .18s ease, box-shadow .18s ease, transform .18s ease; }

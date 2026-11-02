@@ -315,7 +315,7 @@ function App() {
     <main>
       <header className="app-header">
         <div>
-          <h1><span className="brand-mark" aria-hidden="true">⌂</span> Smart Meter Texas</h1>
+          <h1><img className="brand-mark" src="/icons/icon-192.png" alt="" aria-hidden="true" width="40" height="40" /> Smart Meter Texas</h1>
           <p>Home energy dashboard</p>
         </div>
         <div className="actions">
