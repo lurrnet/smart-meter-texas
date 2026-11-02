@@ -15,7 +15,7 @@ This public repository uses GitHub Flow: protected `main`, short-lived `feature/
 
 ## Versioning and rollback
 
-`v0.2.0` remains immutable. Feature work toward installable PWA targets `v0.3.0`, with patch releases for fixes. The existing Compose file builds a local image and has a fixed `0.2.0` image label; until a follow-up versioning change lands, verify the checked-out tag and image identity explicitly. Image labels alone do **not** prove deployed source provenance.
+`v0.2.0` remains immutable. Feature work toward installable PWA targets `v0.3.0`, with patch releases for fixes. The Compose file builds local `smart-meter-texas:0.3.0` images for both services; the Python and frontend package metadata also report `0.3.0`. These source versions do not imply a published GitHub release. Verify the checked-out tag and image identity explicitly. Image labels alone do **not** prove deployed source provenance.
 
 For rollback, stop the service, restore the previous tagged checkout/image and the compatible backed-up SQLite data if a migration occurred. Keep private `.env`, `data/` and `logs/` outside source control. Never deploy CI with real SMT credentials or real meter data.
 
