@@ -532,19 +532,44 @@ if FRONTEND.exists() and (FRONTEND / "assets").is_dir():
     app.mount("/assets", StaticFiles(directory=FRONTEND / "assets"), name="assets")
 
 
+# Only explicitly named PWA files may be served from the compiled frontend
+# root. This prevents untrusted URL paths from entering filesystem operations.
+@app.get("/manifest.webmanifest")
+def pwa_manifest():
+    return FileResponse(FRONTEND / "manifest.webmanifest", media_type="application/manifest+json")
+
+
+@app.get("/sw.js")
+def pwa_service_worker():
+    return FileResponse(FRONTEND / "sw.js", media_type="text/javascript")
+
+
+@app.get("/pwa-register.js")
+def pwa_registration():
+    return FileResponse(FRONTEND / "pwa-register.js", media_type="text/javascript")
+
+
+@app.get("/icons/icon-192.png")
+def pwa_icon_192():
+    return FileResponse(FRONTEND / "icons" / "icon-192.png", media_type="image/png")
+
+
+@app.get("/icons/icon-512.png")
+def pwa_icon_512():
+    return FileResponse(FRONTEND / "icons" / "icon-512.png", media_type="image/png")
+
+
 @app.get("/{path:path}")
 def single_page_app(path: str):
-    # Serve only known compiled static file extensions from the frontend root.
-    root = FRONTEND.resolve()
-    candidate = (root / path).resolve()
-    if path and candidate.is_file() and candidate.is_relative_to(root) and candidate.suffix in {".js", ".css", ".svg", ".png", ".ico", ".jpg", ".jpeg", ".webp", ".woff", ".woff2", ".txt"}:
-        return FileResponse(candidate)
-    if path.startswith("api/") or path.startswith(".") or path.startswith("assets/"):
+    # Vite assets are handled by the static mount; arbitrary file paths are
+    # never resolved against the filesystem. Preserve SPA navigation fallback.
+    if path.startswith(("api/", "assets/", ".", "icons/")) or Path(path).suffix:
         raise HTTPException(status_code=404, detail="Not found")
-    index = root / "index.html"
+    index = FRONTEND / "index.html"
     if not index.is_file():
         raise HTTPException(status_code=404, detail="Frontend build not found")
     return FileResponse(index)
+
 
 
 def main() -> None:
