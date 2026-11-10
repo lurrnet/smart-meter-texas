@@ -23,3 +23,5 @@ services:
       - ./data:/app/data
       - ./logs:/app/logs
     restart: unless-stopped
+    healthcheck:
+      disable: true
