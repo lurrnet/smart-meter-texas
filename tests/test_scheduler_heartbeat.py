@@ -23,7 +23,7 @@ def test_heartbeat_is_private_and_atomic(tmp_path) -> None:
     heartbeat.pulse(status="sleeping", next_run_at=(datetime.now(timezone.utc) + timedelta(days=1)).isoformat())
     assert stat.S_IMODE(path.stat().st_mode) == 0o600
     assert json.loads(path.read_text())["status"] == "sleeping"
-    assert not list(path.parent.glob(".*.tmp"))
+    assert not list(path.parent.glob(f".{path.name}.*"))
 
 
 def test_healthy_daily_sleep_is_not_mistaken_for_failure(tmp_path) -> None:
@@ -149,3 +149,27 @@ def test_invalid_timestamp_or_schema_is_unhealthy(tmp_path) -> None:
     assert check_heartbeat(path)[0] is False
     save_heartbeat(path, {**heartbeat.state, "schema_version": 99})
     assert check_heartbeat(path)[0] is False
+
+
+def test_sleep_wakes_in_short_intervals_and_updates_heartbeat(tmp_path, monkeypatch) -> None:
+    path = tmp_path / "heartbeat.json"
+    heartbeat = SchedulerHeartbeat(path)
+    from zoneinfo import ZoneInfo
+    target = datetime(2026, 11, 9, 11, 0, tzinfo=ZoneInfo("America/Chicago"))
+    moments = iter([
+        target - timedelta(seconds=80),
+        target - timedelta(seconds=50),
+        target + timedelta(seconds=1),
+    ])
+    class Clock:
+        @staticmethod
+        def now(tz):
+            return next(moments)
+    sleep_calls = []
+    monkeypatch.setattr(scheduler, "datetime", Clock)
+    monkeypatch.setattr(scheduler.time, "sleep", lambda seconds: sleep_calls.append(seconds))
+    scheduler.sleep_until(target, heartbeat)
+    assert sleep_calls == [HEARTBEAT_INTERVAL_SECONDS, HEARTBEAT_INTERVAL_SECONDS]
+    state = json.loads(path.read_text())
+    assert state["status"] == "sleeping"
+    assert state["next_run_at"] == target.isoformat()
