@@ -52,10 +52,8 @@ def run_refresh(
         heartbeat.pulse(
             status="running",
             next_run_at=None,
-            last_scheduled_at=scheduled_for.isoformat() if scheduled_for is not None else None,
-            last_run_started_at=timestamp(),
-            last_run_finished_at=None,
-            last_run_returncode=None,
+            current_scheduled_at=scheduled_for.isoformat() if scheduled_for is not None else None,
+            current_run_started_at=timestamp(),
         )
 
     print(json.dumps({"event": "refresh_start", "command": command, "ts": datetime.now().isoformat()}), flush=True)
@@ -76,6 +74,10 @@ def run_refresh(
         if heartbeat is not None:
             heartbeat.pulse(
                 status="finished",
+                last_run_started_at=heartbeat.state["current_run_started_at"],
+                last_scheduled_at=heartbeat.state["current_scheduled_at"],
+                current_run_started_at=None,
+                current_scheduled_at=None,
                 last_run_finished_at=timestamp(),
                 last_run_returncode=127,
             )
@@ -94,6 +96,10 @@ def run_refresh(
     if heartbeat is not None:
         heartbeat.pulse(
             status="finished",
+            last_run_started_at=heartbeat.state["current_run_started_at"],
+            last_scheduled_at=heartbeat.state["current_scheduled_at"],
+            current_run_started_at=None,
+            current_scheduled_at=None,
             last_run_finished_at=timestamp(),
             last_run_returncode=code,
         )
