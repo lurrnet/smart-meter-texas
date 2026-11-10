@@ -24,4 +24,8 @@ services:
       - ./logs:/app/logs
     restart: unless-stopped
     healthcheck:
-      disable: true
+      test: ["CMD", "python", "-m", "smart_meter_texas.scheduler_health"]
+      interval: 60s
+      timeout: 10s
+      start_period: 45s
+      retries: 3

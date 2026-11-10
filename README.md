@@ -46,6 +46,15 @@ docker compose run --rm scheduler smt-scheduler --once
 
 Note: automatic sync runs in a separate scheduler service. The `web` and `scheduler` services share `./data` and `./logs` directories.
 
+### Scheduler heartbeat health
+
+The scheduler normally sleeps until the next configured daily run. Unlike the web service, it has **no HTTP listener**. Its Docker health check reads `./data/scheduler_heartbeat.json` inside the container and verifies the scheduler process, a recently updated heartbeat, and that the next scheduled run is not overdue. While a sync is running, heartbeats continue during the child process wait; a run exceeding four hours is considered stuck.
+
+The heartbeat file contains only timestamps, PID, status (`starting`, `sleeping`, `running`, or `finished`) and the last completed sync return code. It is atomically written with file mode `0600`; no credentials or consumption data are included. By default it updates every 30 seconds. The health check allows up to 180 seconds without a heartbeat and a 15-minute scheduling grace period. Routine daily sleep is healthy. A sync returning nonzero is **recorded** but does not, by itself, mark the scheduler unhealthy; investigate it separately in logs.
+
+Inspect the state from the Docker host with `cat data/scheduler_heartbeat.json`, and use `docker compose ps` or `docker inspect` for container health. Docker marks unhealthy containers but does **not** automatically restart them solely because the health check fails; configure external alerting if needed. A one-off `smt-scheduler --once` run will not overwrite the long-running scheduler's heartbeat.
+
+
 ## Configuration
 
 See [`.env.example`](.env.example). The utility account variables `SMT_USERNAME`, `SMT_PASSWORD`, and `SMT_ESIID` are needed for usage retrieval. Application-level Basic authentication additionally needs a username and password unless explicitly delegated to a trusted upstream access gateway.
