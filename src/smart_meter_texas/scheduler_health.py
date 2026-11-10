@@ -57,6 +57,8 @@ class SchedulerHeartbeat:
             "status": "starting",
             "next_run_at": None,
             "last_scheduled_at": None,
+            "current_scheduled_at": None,
+            "current_run_started_at": None,
             "last_run_started_at": None,
             "last_run_finished_at": None,
             "last_run_returncode": None,
@@ -114,7 +116,7 @@ def check_heartbeat(
             if current > next_run + timedelta(seconds=schedule_grace_seconds):
                 return False, "scheduled run overdue"
         elif status == "running":
-            started = _read_time(state.get("last_run_started_at"))
+            started = _read_time(state.get("current_run_started_at"))
             if current > started + timedelta(seconds=max_run_seconds):
                 return False, "scheduled run exceeded maximum duration"
         elif status not in {"starting", "finished"}:
