@@ -73,7 +73,7 @@ def test_overlong_run_is_unhealthy_despite_fresh_heartbeat(tmp_path) -> None:
     heartbeat = SchedulerHeartbeat(path)
     heartbeat.pulse(
         status="running",
-        last_run_started_at=(datetime.now(timezone.utc) - timedelta(hours=5)).isoformat(),
+        current_run_started_at=(datetime.now(timezone.utc) - timedelta(hours=5)).isoformat(),
     )
     assert check_heartbeat(path) == (False, "scheduled run exceeded maximum duration")
 
@@ -83,7 +83,7 @@ def test_recent_running_job_is_healthy(tmp_path) -> None:
     heartbeat = SchedulerHeartbeat(path)
     heartbeat.pulse(
         status="running",
-        last_run_started_at=(datetime.now(timezone.utc) - timedelta(minutes=40)).isoformat(),
+        current_run_started_at=(datetime.now(timezone.utc) - timedelta(minutes=40)).isoformat(),
     )
     assert check_heartbeat(path) == (True, "scheduler running")
 
@@ -126,6 +126,7 @@ def test_scheduler_refresh_pulses_during_long_running_subprocess(tmp_path, monke
     assert process.calls == 2
     assert state["status"] == "finished"
     assert state["last_run_started_at"] is not None
+    assert state["current_run_started_at"] is None
     assert state["last_run_finished_at"] is not None
     assert state["last_run_returncode"] == 2
 
