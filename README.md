@@ -2,7 +2,7 @@
 
 Self-hosted electricity usage monitoring and analytics, powered by Smart Meter Texas consumption data.
 
-**Version:** [v0.2.0](https://github.com/lurrnet/smart-meter-texas/releases/tag/v0.2.0) (first public source release)
+**Source version:** `0.3.0` (unreleased; no `v0.3.0` tag or GitHub Release yet). **Latest published release:** [v0.2.0](https://github.com/lurrnet/smart-meter-texas/releases/tag/v0.2.0).
 
 > **Unofficial integration:** This community project is not affiliated with or endorsed by Smart Meter Texas. It authenticates against website endpoints that are not the formally provisioned SMT API/FTPS integration; those endpoints may change. The [SMT Website Terms and Conditions](https://www.smartmetertexas.com/?view=security) restrict automated extraction except through prescribed functionality or with appropriate authorization. The [Residential User Guide, Section 9](https://www.smartmetertexas.com/commonapi/gethelpguide/help-guides/Smart_Meter_Texas_Residential_User_Guide.pdf) describes an official API/FTPS integration process through SMT Support. **Publishing this source code does not authorize automated access.** Review the provider terms and obtain any required permission before operating it.
 
@@ -23,6 +23,9 @@ Self-hosted electricity usage monitoring and analytics, powered by Smart Meter T
 - **Never publish port 8090 directly to the public internet**
 
 ## Quick start
+
+The default Compose build labels both `web` and `scheduler` images `smart-meter-texas:0.3.0`; no `SMT_IMAGE_TAG` setting is needed. This is a local image label, **not** proof of a published GitHub release.
+
 
 ```bash
 git clone https://github.com/lurrnet/smart-meter-texas.git
